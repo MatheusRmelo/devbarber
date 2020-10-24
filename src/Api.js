@@ -45,13 +45,37 @@ export default {
     getBarbers: async (lat = null, lng = null, address=null) => {
         const token = await AsyncStorage.getItem('token');
 
-        console.log("LAT:" + lat);
-        console.log("LNG:" + lng);
-        console.log("ADDRESS:" + address);
+        // console.log("LAT:" + lat);
+        // console.log("LNG:" + lng);
+        // console.log("ADDRESS:" + address);
 
         const req = await fetch(`${BASE_API}/barbers?token=${token}&lat=${lat}&lng=${lng}&address=${address}`);
         const json = await req.json();
 
         return json;
-    }
+    },
+    logout: async () => {
+        const token = await AsyncStorage.getItem('token');
+        
+        const req = await fetch(`${BASE_API}/auth/logout`,{
+            method: 'POST',
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({token})
+        });
+
+        const json = await req.json();
+        return json;
+    },
+    getBarber: async (id) => {
+        const token = await AsyncStorage.getItem('token');
+
+        const req = await fetch(`${BASE_API}/barber/${id}?token=${token}`);
+        const json = await req.json();
+
+        //console.log(json);
+        return json;
+    },
 }
