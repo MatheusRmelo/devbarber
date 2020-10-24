@@ -9,7 +9,7 @@ import {
     BackButton,
     LoadingIcon,
   
-    TestimonialArea,
+    
 
     SwipeDot,
     SwipeItem,
@@ -29,7 +29,13 @@ import {
     ServiceName,
     ServicePrice,
     ServiceChooseButton,
-    ServiceChooseButtonText
+    ServiceChooseButtonText,
+
+    TestimonialArea,
+    TestimonialItem,
+    TestimonialBody,
+    TestimonialInfo,
+    TestimonialName
 
  } from './styles';
 import Stars from '../../components/Stars';
@@ -39,6 +45,8 @@ import Api from '../../Api';
 
 import FavoriteIcon from '../../assets/favorite.svg';
 import BackIcon from '../../assets/back.svg';
+import NavPrevIcon from '../../assets/nav_prev.svg';
+import NavNextIcon from '../../assets/nav_next.svg';
 
 export default () => {
     const navigation = useNavigation();
@@ -134,10 +142,32 @@ export default () => {
                         </ServiceArea>
                     }
 
-                    
-                    <TestimonialArea>
+                    {userInfo.testimonials && userInfo.testimonials.length > 0 &&
+                        <TestimonialArea>
+                            <Swiper
+                                style={{height:110}}
+                                showsPagination={false}
+                                showButtons={true}
+                                prevButton={<NavPrevIcon width="35" height="35" fill="black" />}
+                                nextButton={<NavNextIcon width="35" height="35" fill="black" />}
+                            >
+                                {userInfo.testimonials.map((item,k)=>(
+                                    <TestimonialItem key={k}>
+                                        <TestimonialInfo>
+                                            <TestimonialName>{item.name}</TestimonialName>    
+                                            <Stars stars={item.rate} showNumber={false} />
+                                        </TestimonialInfo>
+                                        <TestimonialBody>
+                                            {item.body}
+                                        </TestimonialBody>
+                                    </TestimonialItem>
+                                ))}
 
-                    </TestimonialArea>
+
+                            </Swiper>
+                        </TestimonialArea>
+                    }
+                    
                 </PageBody>
             </Scroller>
             <BackButton onPress={handleBackButton}> 
