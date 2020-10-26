@@ -38,8 +38,9 @@ import {
     TestimonialName
 
  } from './styles';
+
 import Stars from '../../components/Stars';
-import { Text } from 'react-native';
+import BarberModal from '../../components/BarberModal';
 
 import Api from '../../Api';
 
@@ -47,7 +48,8 @@ import FavoriteIcon from '../../assets/favorite.svg';
 import BackIcon from '../../assets/back.svg';
 import NavPrevIcon from '../../assets/nav_prev.svg';
 import NavNextIcon from '../../assets/nav_next.svg';
-
+import FavoriteFullIcon from '../../assets/favorite_full.svg';
+ 
 export default () => {
     const navigation = useNavigation();
     const route = useRoute();
@@ -59,7 +61,9 @@ export default () => {
         stars: route.params.stars
     });
     const [loading, setLoading] = useState(false);
-
+    const [favorited, setFavorited] = useState(false);
+    const [selectedService, setSelectedService] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(()=>{
         const getBarberInfo = async () => {
@@ -68,6 +72,7 @@ export default () => {
             let json = await Api.getBarber(userInfo.id);
             if(json.error === ''){
                 setUserInfo(json.data);
+                setFavorited(json.data.favorited);
             }else{
                 alert('ERRO:' + json.error);
             }
@@ -79,6 +84,14 @@ export default () => {
 
     const handleBackButton = () =>{
         navigation.goBack();
+    }
+    const handleFavClick = () => {
+        setFavorited(prevState=>!prevState);
+        Api.setFavorite( userInfo.id );
+    }
+    const handleServiceChoose = (key) =>{
+        setSelectedService(key);
+        setShowModal(true);
     }
 
     return (
@@ -111,8 +124,14 @@ export default () => {
                             <UserInfoName>{userInfo.name}</UserInfoName>
                             <Stars stars={userInfo.stars} showNumber={true} />
                         </UserInfo>
-                        <UserFavButton>
-                            <FavoriteIcon width="24" height="24" fill="red" />
+                        <UserFavButton onPress={handleFavClick}>
+                            {
+                                favorited ?
+                                <FavoriteFullIcon width="24" height="24" fill="red" />
+                                :
+                                <FavoriteIcon width="24" height="24" fill="red" />
+                            }
+                            
                         </UserFavButton>
                     </UserInfoArea>
                     {
@@ -128,9 +147,9 @@ export default () => {
                                     <ServiceItem key={key}>
                                         <ServiceInfo>
                                             <ServiceName>{item.name}</ServiceName>
-                                            <ServicePrice>R$ {item.price}</ServicePrice>
+                                            <ServicePrice>R$ {item.price.toFixed(2)}</ServicePrice>
                                         </ServiceInfo>
-                                        <ServiceChooseButton>
+                                        <ServiceChooseButton onPress={()=>handleServiceChoose(key)}>
                                             <ServiceChooseButtonText>
                                                 Agendar
                                             </ServiceChooseButtonText>
@@ -147,7 +166,7 @@ export default () => {
                             <Swiper
                                 style={{height:110}}
                                 showsPagination={false}
-                                showButtons={true}
+                                showsButtons={true}
                                 prevButton={<NavPrevIcon width="35" height="35" fill="black" />}
                                 nextButton={<NavNextIcon width="35" height="35" fill="black" />}
                             >
@@ -173,6 +192,16 @@ export default () => {
             <BackButton onPress={handleBackButton}> 
                 <BackIcon width="44" height="44" fill="white" />
             </BackButton>
+
+
+            <BarberModal
+                show={showModal}
+                setShow = {setShowModal}
+                user={userInfo}
+                service={selectedService}
+            >
+
+            </BarberModal>
         </Container>
     );
 }
